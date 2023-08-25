@@ -79,9 +79,13 @@ def write_midi(pr, ticks_per_beat, write_path, tempo=80):
 from unidecode import unidecode
 # import numpy as np
 
+
+###### MIDI conversion library #############################################
+
+# following code is taken from https://github.com/qsdfo/midi_to_numpy 
+
 #######
 # Pianorolls dims are  :   TIME  *  PITCH
-
 
 class Read_midi(object):
     def __init__(self, song_path, quantization):
@@ -242,8 +246,6 @@ class Read_midi(object):
                     pianoroll[name] = pr
         return pianoroll
 
-
-
 def get_pianoroll_time(pianoroll):
     T_pr_list = []
     for k, v in pianoroll.items():
@@ -271,6 +273,8 @@ def dict_to_matrix(pianoroll):
             rp = v
     return rp
 
+####################################################
+
 
 import numpy as np
 import pandas as pd
@@ -284,8 +288,6 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader, TensorDataset
-
-# from torchvision.transforms import Compose, ToTensor, Lambda
 
 def visualise_op(images, title=""):
     """Shows the provided images as sub-pictures in a square"""
@@ -606,8 +608,6 @@ class MyUNet(nn.Module):
            nn.Linear(dim_out, dim_out)
        )
 
-device = 'cuda'
-
 def hp_filter(a, mean):
     if a < mean*7:
         return 0
@@ -677,14 +677,16 @@ weight_path = 'ddpm_model_q3_with_attention_17Aug.pt'
     
 n_steps=1000
 height = 192
+device = 'cuda'
 
 print("GPU -->", torch.cuda.is_available())
 
 folder_name = "Sample"
 
-best_model = DDPMModel(MyUNet(n_steps), n_steps=n_steps, device=device)
-best_model.load_state_dict(torch.load(weight_path, map_location=device))
-best_model.eval()
+model = DDPMModel(MyUNet(n_steps), n_steps=n_steps, device=device)
+model.load_state_dict(torch.load(weight_path, map_location=device))
+model.eval()
 print()
-#             for i in range (20):
-save_samples(best_model, folder_name)
+
+
+save_samples(model, folder_name)
